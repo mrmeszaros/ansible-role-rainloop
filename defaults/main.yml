@@ -1,6 +1,9 @@
 ---
 # defaults file for ansible-role-rainloop/
 
+# PHP config
+php_version: 7.2
+
 # General config.
 rainloop_hostname: webmail
 

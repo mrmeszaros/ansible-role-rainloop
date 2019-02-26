@@ -5,27 +5,27 @@
   action: apt pkg={{item}} state=present
   with_items:
   - curl
-  - php5-sqlite
-  - php5-pgsql
-  - php5-mysql
-  - php5-fpm
-  - php5-gd
-  - php5-cli
-  - php5-curl
+  - php{{ php_version }}-sqlite3
+  - php{{ php_version }}-pgsql
+  - php{{ php_version }}-mysql
+  - php{{ php_version }}-fpm
+  - php{{ php_version }}-gd
+  - php{{ php_version }}-cli
+  - php{{ php_version }}-curl
+  - php{{ php_version }}-dom
 
-- name: create directory /srv/www 
+- name: create directory /srv/www
   file: path=/srv/www/{{rainloop_hostname}} state=directory
 
 - name: set upload_max_filesize to 100M in php.ing
-  replace: dest=/etc/php5/fpm/php.ini regexp='upload_max_filesize(\s+)(.+)' replace='upload_max_filesize = 100M'
+  replace: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp='upload_max_filesize(\s+)(.+)' replace='upload_max_filesize = 100M'
   notify:
-    - restart php5-fpm
+    - Restart php-fpm
 
 - name: set post_max_filesize to 100M in php.ing
-  replace: dest=/etc/php5/fpm/php.ini regexp='post_max_size(\s+)(.+)' replace='post_max_size = 100M'
+  replace: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp='post_max_size(\s+)(.+)' replace='post_max_size = 100M'
   notify:
-    - restart php5-fpm
-
+    - Restart php-fpm
 
 - name: check if rainloop is installed
   action: shell test -f /srv/www/{{rainloop_hostname}}/index.php && echo "ok" || echo ""
