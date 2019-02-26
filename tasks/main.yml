@@ -2,27 +2,27 @@
 # tasks file for ansible-role-rainloop/
 
 - name: Install base packages
-  action: apt pkg={{ item }} state=present
-  with_items:
-  - curl
-  - php{{ php_version }}-sqlite3
-  - php{{ php_version }}-pgsql
-  - php{{ php_version }}-mysql
-  - php{{ php_version }}-fpm
-  - php{{ php_version }}-gd
-  - php{{ php_version }}-cli
-  - php{{ php_version }}-curl
-  - php{{ php_version }}-dom
+  apt:
+    pkg:
+      - curl
+      - php{{ php_version }}-sqlite3
+      - php{{ php_version }}-pgsql
+      - php{{ php_version }}-mysql
+      - php{{ php_version }}-fpm
+      - php{{ php_version }}-gd
+      - php{{ php_version }}-cli
+      - php{{ php_version }}-curl
+      - php{{ php_version }}-dom
 
-- name: create directory /srv/www
+- name: Create directory /srv/www
   file: path=/srv/www/{{ rainloop_hostname }} state=directory
 
-- name: set upload_max_filesize to 100M in php.ing
+- name: Set upload_max_filesize to 100M in php.ini
   replace: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp='upload_max_filesize(\s+)(.+)' replace='upload_max_filesize = 100M'
   notify:
     - Restart php-fpm
 
-- name: set post_max_filesize to 100M in php.ing
+- name: Set post_max_size to 100M in php.ini
   replace: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp='post_max_size(\s+)(.+)' replace='post_max_size = 100M'
   notify:
     - Restart php-fpm
@@ -32,7 +32,7 @@
   changed_when: no
   register: rainloop_installed
 
-- name: install rainloop uit
+- name: Install rainloop
   command: chdir=/srv/www/{{ rainloop_hostname }} bash -c "curl -s http://repository.rainloop.net/installer.php | php"
   when: rainloop_installed.stdout != "ok"
   notify:
