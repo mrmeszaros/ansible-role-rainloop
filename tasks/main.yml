@@ -2,7 +2,7 @@
 # tasks file for ansible-role-rainloop/
 
 - name: Install base packages
-  action: apt pkg={{item}} state=present
+  action: apt pkg={{ item }} state=present
   with_items:
   - curl
   - php{{ php_version }}-sqlite3
@@ -15,7 +15,7 @@
   - php{{ php_version }}-dom
 
 - name: create directory /srv/www
-  file: path=/srv/www/{{rainloop_hostname}} state=directory
+  file: path=/srv/www/{{ rainloop_hostname }} state=directory
 
 - name: set upload_max_filesize to 100M in php.ing
   replace: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp='upload_max_filesize(\s+)(.+)' replace='upload_max_filesize = 100M'
@@ -28,22 +28,23 @@
     - Restart php-fpm
 
 - name: check if rainloop is installed
-  action: shell test -f /srv/www/{{rainloop_hostname}}/index.php && echo "ok" || echo ""
+  action: shell test -f /srv/www/{{ rainloop_hostname }}/index.php && echo "ok" || echo ""
+  changed_when: no
   register: rainloop_installed
 
 - name: install rainloop uit
-  command: chdir=/srv/www/{{rainloop_hostname}} bash -c "curl -s http://repository.rainloop.net/installer.php | php"
+  command: chdir=/srv/www/{{ rainloop_hostname }} bash -c "curl -s http://repository.rainloop.net/installer.php | php"
   when: rainloop_installed.stdout != "ok"
   notify:
     - reload nginx
 
 - name: Create the nginx configuration for rainloop
-  template: src=nginx/rainloop.j2 dest=/etc/nginx/sites-available/{{rainloop_hostname}}
+  template: src=nginx/rainloop.j2 dest=/etc/nginx/sites-available/{{ rainloop_hostname }}
   notify:
    - reload nginx
 
 
 - name: Create the links to enable rainloop configuration
-  file: path=/etc/nginx/sites-enabled/{{rainloop_hostname}} state=link src=/etc/nginx/sites-available/{{rainloop_hostname}}
+  file: path=/etc/nginx/sites-enabled/{{ rainloop_hostname }} state=link src=/etc/nginx/sites-available/{{ rainloop_hostname }}
   notify:
    - reload nginx
