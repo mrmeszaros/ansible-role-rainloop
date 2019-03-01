@@ -32,6 +32,8 @@
     src: https://www.rainloop.net/repository/webmail/rainloop-community-latest.zip
     remote_src: yes
     dest: /srv/www/{{ rainloop_hostname }}
+    owner: www-data
+    group: www-data
     creates: /srv/www/{{ rainloop_hostname }}/index.php
   notify:
     - reload nginx
